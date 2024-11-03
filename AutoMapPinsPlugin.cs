@@ -38,6 +38,7 @@ namespace AutoMapPins
         internal static ConfigEntry<float> GroupingRadius = null!;
         internal static ConfigEntry<float> MaxDetectionHeight = null!;
         internal static ConfigEntry<bool> PrefabDiscoveryEnabled = null!;
+        internal static ConfigEntry<bool> AutoReloadEnabled = null!;
         internal static ConfigEntry<bool> SilentDiscoveryEnabled = null!;
 
         private void Awake()
@@ -50,6 +51,11 @@ namespace AutoMapPins
             ConfigSync.AddLockingConfigEntry(_configLocked);
 
             var generalGroup = "1 - General";
+            AutoReloadEnabled = CreateConfig(generalGroup, "Auto reload enabled", true,
+                "This option will either enable (true, default) or disable (false) the auto reload of the " +
+                "configuration files. If enabled, the configuration files will be reloaded automatically when " +
+                "they are changed. If disabled, you will need to reload the configuration files manually.");
+
             PrefabDiscoveryEnabled = CreateConfig(generalGroup, "Enable the prefab discovery", false,
                 "This option will either enable (true) or disable (false, default) the discovery of new " +
                 "prefabs that have not yet been configured. For smoother gameplay you can simply disable it, the mod " +
@@ -59,7 +65,7 @@ namespace AutoMapPins
             SilentDiscoveryEnabled = CreateConfig(generalGroup, "Prefab discovery silent mode", true,
                 "This option will either enable (true, default) or disable (false) the log messages on " +
                 "discovery of new prefabs that have not yet been configured. For smoother gameplay you can simply " +
-                "enable it, the mod will then not print to console that there are new objects that have not been " +
+                "enable it, the mod will then not print to console that tridhere are new objects that have not been " +
                 "configured, yet. For finding out if there are prefabs missing that were not configured, you will " +
                 "need to disable this flag.");
 
@@ -101,6 +107,7 @@ namespace AutoMapPins
 
         private void SetupFileWatcher(string fileName)
         {
+            if (!AutoReloadEnabled.Value) return;
             FileSystemWatcher watcher = new(Paths.ConfigPath, fileName);
             watcher.Changed += ReloadConfig;
             watcher.Created += ReloadConfig;
